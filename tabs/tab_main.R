@@ -50,33 +50,30 @@ fluidPage(
             
             # Output: Table of .csv file and diagram with beta coefficients ----
             fluidRow(
-                column(3, DT::dataTableOutput("beta_table")),
-                column(9, offset = 0.5, plotOutput("gini_plot"))
+                box(width = 3, h3("Original Coefficients"),
+                    DT::dataTableOutput("beta_table")),
+                box(width = 9, h3("Beta Coefficients"), 
+                    plotOutput("gini_plot"))
             ),
             
             br(), 
             
             # Output: Data tables showing output of all_methods_maxima() ----
             fluidRow(
-                column(4,
-                       tabsetPanel(
-                           type = "tabs",
-                           tabPanel("All", DT::dataTableOutput("all"))
-                       )
-                ),
-                column(4, 
-                       tabsetPanel(
-                           type = "tabs",
-                           tabPanel("Reference", DT::dataTableOutput("reference"))
-                       )
-                ),
-                column(4, 
-                       tabsetPanel(
-                           type = "tabs",
-                           tabPanel("Sequential", DT::dataTableOutput("sequential"))
-                       )
-                )
-            )
+                box(width = 4,
+                    h3("All"),
+                    DT::dataTableOutput("all")),
+                box(width = 4,
+                    h3("Reference"),
+                    DT::dataTableOutput("reference")),
+                box(width = 4,
+                    h3("Sequential"),
+                    DT::dataTableOutput("sequential"))
+            ),
+            
+            br(),
+            br()
+            
         )
             
     )

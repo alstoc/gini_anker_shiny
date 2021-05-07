@@ -80,9 +80,10 @@ server <- function(input, output, session) {
     })
     
     # create reactive variable with selected row
-    selected_row <- reactive({
-        input$all_rows_selected
-    })
+    selected_row <- reactiveVal(NULL)
+    observeEvent(input$all_rows_selected, {
+        selected_row(input$all_rows_selected)
+    }, ignoreNULL = FALSE)
     
     # create reactive data frame with all methods maxima
     gini_all <- reactive({
@@ -93,7 +94,7 @@ server <- function(input, output, session) {
         return(temp %>% as.data.frame())
     })
     
-    # Data Upload ----
+    # Original Beta Coefficients Table ----
     
     # table containing original beta coefficients
     output$beta_table <- DT::renderDataTable({
@@ -106,11 +107,13 @@ server <- function(input, output, session) {
             df() %>% 
                 head() %>%
                 DT::datatable(rownames = input$rownames,
-                              options = list(dom = 't')) 
+                              options = list(dom = 't',
+                                             scrollY = "400px")) 
                    
         } else {
             DT::datatable(df(), rownames = input$rownames,
-                          options = list(dom = 't'))
+                          options = list(dom = 't',
+                                         scrollY = "400px"))
         }
     })
     
@@ -120,8 +123,8 @@ server <- function(input, output, session) {
     # plot of the beta coefficients
     output$gini_plot <- renderPlot({
         req(input$file)
-        if (is.na(selected_row()) | is.null(selected_row())) {
-            ggplot_betas(df())
+        if (is.null(selected_row())) {
+            ggplot_betas(df(), shifts = c(0, 0, 0))
         } else {
             ggplot_betas(df(), 
                          shifts = gini_all() %>% 
