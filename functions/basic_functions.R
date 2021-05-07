@@ -86,13 +86,9 @@ plot_betas <- function(betas, shifts = c(0,0,0), point_types=c(1, 4, 2),
 # Same as plot_betas but with ggplot2 (Alain Stocker)
 ggplot_betas <- function(betas, 
                          shifts = NA, 
-                         title = "Beta Coefficients") {
+                         title = NULL) {
   
-  if (is.na(shifts)) {
-    shifts <- rep(0, ncol(betas))
-  }
-  
-  shifted_betas <- t(apply(betas, 1, function(x) x + shifts)) %>% 
+  shifted_betas <- t(apply(betas, 1, function(x) x + unlist(shifts))) %>% 
     as_tibble() %>% 
     pivot_longer(cols = everything(), 
                  names_to = "variable", 

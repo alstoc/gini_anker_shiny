@@ -144,7 +144,7 @@ all_methods_maxima <- function(beta1, beta2, beta3, reference = 3) {
 #beta4 <- c(3, 1, 2, 1, 3, 1, 5, 5)
 #betas <- cbind(beta1, beta2, beta3)
 #save(betas,file="betas.Rda")
-#write.csv(betas, file = "betas.csv")
+#write.csv(betas, file = "data/betas.csv")
 
 # Plot coefficients
 #plot_betas(test, shifts = c(0,0,0), type="b", cex.main=1.5, 
