@@ -8,25 +8,32 @@
 #
 
 # Load packages ----
-pacman::p_load(
-    shiny,  # Shiny web app
-    shinydashboard,  # Shiny Dashboards
-    shinythemes,  # additional themes for Shiny Dashboards
-    DT,  # alternative way of handling data tables
-    tidyverse,  # data wrangling and exploration
-    ggplot2,  # visualisation
-    vroom  # data import
-)
+library(shiny)  # Shiny web app
+library(shinydashboard)  # Shiny Dashboards
+library(shinythemes)  # additional themes for Shiny Dashboards
+library(DT)  # alternative way of handling data tables
+library(tidyverse)  # data wrangling and exploration
+library(ggplot2)  # visualisation
+
 
 # Source required files ----
 source("functions/basic_functions.R")
 source("functions/first_sims.R")
 source("functions/methods_comparison.R")
 
+# Load example_data
+example_data <- 
+    read.csv(file = "data/betas.csv",
+             header = TRUE,
+             sep = ",",
+             quote = "\"",
+             check.names = FALSE) %>% 
+    .[, -1]
+
 
 # Define UI for application ----
 ui <- navbarPage(
-    "Gini Anker Prototype v0.1", theme = shinytheme("lumen"),
+    "Gini Anker Prototype v0.2", theme = shinytheme("lumen"),
     
     # First Tab                
     tabPanel(
@@ -53,9 +60,11 @@ server <- function(input, output, session) {
     
     # General ----
     
+    # create data frame with example .csv file
+    df <- reactiveVal(example_data)
+    
     # create data frame from uploaded .csv file
-    df <- eventReactive(input$upload_button, {
-        
+    observeEvent(input$upload_button, {
         # when reading semicolon separated files,
         # having a comma separator causes `read.csv` to error
         tryCatch(
@@ -70,7 +79,8 @@ server <- function(input, output, session) {
                 if (colnames(tmp)[1] == "") {
                     tmp <- tmp[, -1]
                 }
-                    
+                
+                df(tmp)
             },
             error = function(e) {
                 # return a safeError if a parsing error occurs
@@ -78,6 +88,7 @@ server <- function(input, output, session) {
             }
         )
     })
+
     
     # create reactive variable with selected row
     selected_row <- reactiveVal(NULL)
@@ -122,7 +133,6 @@ server <- function(input, output, session) {
     
     # plot of the beta coefficients
     output$gini_plot <- renderPlot({
-        req(input$file)
         if (is.null(selected_row())) {
             ggplot_betas(df(), shifts = c(0, 0, 0))
         } else {
