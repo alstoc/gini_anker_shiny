@@ -8,6 +8,7 @@ fluidPage(
                       accept = c("text/csv",
                                  "text/comma-separated-values,text/plain",
                                  ".csv")),
+            helpText("Please upload a .csv file containing beta coefficients for 3 groups."),
             # Horizontal line ----
             tags$hr(),
             
@@ -62,12 +63,15 @@ fluidPage(
             fluidRow(
                 box(width = 4,
                     h3("All"),
+                    h4("Update the diagram by clicking on a row."),
                     DT::dataTableOutput("all")),
                 box(width = 4,
                     h3("Reference"),
+                    br(),
                     DT::dataTableOutput("reference")),
                 box(width = 4,
                     h3("Sequential"),
+                    br(),
                     DT::dataTableOutput("sequential"))
             ),
             
