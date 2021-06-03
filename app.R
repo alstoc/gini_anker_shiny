@@ -10,7 +10,9 @@
 # Load packages ----
 library(shiny)  # Shiny web app
 library(shinydashboard)  # Shiny Dashboards
+library(shinydashboardPlus)  # additionaly dashboard features
 library(shinythemes)  # additional themes for Shiny Dashboards
+library(shinyWidgets)  # additional functionality
 library(DT)  # alternative way of handling data tables
 library(tidyverse)  # data wrangling and exploration
 library(ggplot2)  # visualisation
@@ -61,7 +63,10 @@ server <- function(input, output, session) {
     # General ----
     
     # create data frame with example .csv file
-    df <- reactiveVal(example_data)
+    dat <- reactiveValues(df = example_data)
+    
+    # create reactive set
+    df <- reactive({dat$df})
     
     # create data frame from uploaded .csv file
     observeEvent(input$upload_button, {
@@ -80,7 +85,7 @@ server <- function(input, output, session) {
                     tmp <- tmp[, -1]
                 }
                 
-                df(tmp)
+                dat$df <- tmp
             },
             error = function(e) {
                 # return a safeError if a parsing error occurs
@@ -88,7 +93,34 @@ server <- function(input, output, session) {
             }
         )
     })
+    
+    # table containing original beta coefficients
+    output$beta_table <- DT::renderDataTable({
+        
+        DT::datatable(df(), rownames = FALSE,
+                      selection = "none",
+                      editable = TRUE,
+                      options = list(dom = 't',
+                                     scrollY = "400px"))
+    })
+    
+    # edit cells of df
+    observeEvent(input$beta_table_cell_edit, {
 
+        info <- input$beta_table_cell_edit
+        str(info)
+        row   <- info$row
+        col   <- info$col + 1L
+        value <- info$value %>% as.numeric()
+        
+        isolate(dat$df[row, col] <- value)
+        
+        #editData(df, input$beta_table_cell_edit, rownames = FALSE)
+    })
+    
+    observe(str(input$beta_table_cell_edit))
+    
+    # gini_all with selecatble rows ----
     
     # create reactive variable with selected row
     selected_row <- reactiveVal(NULL)
@@ -104,30 +136,6 @@ server <- function(input, output, session) {
         temp$Gini_Sum <- round(temp$Gini_Sum, digits = 2)
         return(temp %>% as.data.frame())
     })
-    
-    # Original Beta Coefficients Table ----
-    
-    # table containing original beta coefficients
-    output$beta_table <- DT::renderDataTable({
-        
-        # input$file will be NULL initially. After the user selects
-        # and uploads a file, head of that data file by default,
-        # or all rows if selected, will be shown.
-
-        if(input$disp == "head") {
-            df() %>% 
-                head() %>%
-                DT::datatable(rownames = input$rownames,
-                              options = list(dom = 't',
-                                             scrollY = "400px")) 
-                   
-        } else {
-            DT::datatable(df(), rownames = input$rownames,
-                          options = list(dom = 't',
-                                         scrollY = "400px"))
-        }
-    })
-    
     
     # Gini Output ----
     

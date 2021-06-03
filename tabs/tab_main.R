@@ -40,7 +40,7 @@ fluidPage(
             radioButtons("disp", "Display",
                          choices = c(Head = "head",
                                      All = "all"),
-                         selected = "head"),
+                         selected = "all"),
             
             checkboxInput("rownames", "Show Row Names", FALSE)
         ),
