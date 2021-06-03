@@ -69,13 +69,19 @@ server <- function(input, output, session) {
     # table containing original beta coefficients
     output$beta_table <- DT::renderDataTable({
         
-        DT::datatable(df(), rownames = FALSE,
+        DT::datatable(isolate(df()), rownames = FALSE,
                       selection = "none",
                       editable = TRUE,
-                      options = list(dom = 'plt', 
+                      options = list(dom = 'lt', 
                                      scrollX = TRUE,
                                      pageLength = 25,
-                                     lengthMenu = c(10, 25, 50)))
+                                     lengthMenu = c(25, 50, 100)))
+    })
+    
+    proxy <- dataTableProxy("beta_table")
+    
+    observe({
+        proxy %>% replaceData(df(), rownames = FALSE)
     })
     
     # edit cells of df
@@ -164,10 +170,10 @@ server <- function(input, output, session) {
     # tables showing output of all_methods_maxima() function
     output$all <- DT::renderDataTable({
         DT::datatable(gini_all(), rownames = FALSE, selection = "single",
-                      options = list(dom = 'plt', 
+                      options = list(dom = 'lt', 
                                      scrollX = TRUE,
                                      pageLength = 25,
-                                     lengthMenu = c(10, 25, 50)))
+                                     lengthMenu = c(25, 50, 100)))
     })
     
     output$reference <- DT::renderDataTable({
@@ -176,10 +182,10 @@ server <- function(input, output, session) {
                                    beta3 = df()[, 3])$Reference
         temp$Gini_Sum <- round(temp$Gini_Sum, digits = 2)
         DT::datatable(temp, rownames = FALSE, selection = "none",
-                      options = list(dom = 'plt', 
+                      options = list(dom = 'lt', 
                                      scrollX = TRUE,
                                      pageLength = 25,
-                                     lengthMenu = c(10, 25, 50)))
+                                     lengthMenu = c(25, 50, 100)))
     })
     
     output$sequential <- DT::renderDataTable({
@@ -187,11 +193,14 @@ server <- function(input, output, session) {
                                    beta2 = df()[, 2],
                                    beta3 = df()[, 3])$Sequential
         temp$Gini_Sum <- round(temp$Gini_Sum, digits = 2)
-        DT::datatable(temp, rownames = FALSE, selection = "none",
-                      options = list(dom = 'plt', 
+        DT::datatable(temp, 
+                      rownames = FALSE, 
+                      selection = list(mode = "none",
+                                       selected = 1),
+                      options = list(dom = 'lt', 
                                      scrollX = TRUE,
                                      pageLength = 25,
-                                     lengthMenu = c(10, 25, 50)))
+                                     lengthMenu = c(25, 50, 100)))
     })
 
 }
