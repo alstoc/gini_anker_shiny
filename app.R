@@ -11,8 +11,9 @@
 library(shiny)  # Shiny web app
 library(shinydashboard)  # Shiny Dashboards
 library(shinydashboardPlus)  # additionaly dashboard features
-library(shinythemes)  # additional themes for Shiny Dashboards
+library(shinythemes)  # additional themes for Shiny Apps
 library(shinyWidgets)  # additional functionality
+library(dashboardthemes)  # additional themes for Shiny Dashboards
 library(DT)  # alternative way of handling data tables
 library(tidyverse)  # data wrangling and exploration
 library(ggplot2)  # visualisation
@@ -34,24 +35,15 @@ example_data <-
 
 
 # Define UI for application ----
-ui <- navbarPage(
-    "Gini Anker Prototype v0.2", theme = shinytheme("lumen"),
-    
-    # First Tab                
-    tabPanel(
-        "Home",
-        fluid = TRUE,
-        icon = icon("desktop"),
+ui <- dashboardPage(
+    dashboardHeader(title = "Gini Anker",
+                    titleWidth = 350),
+    dashboardSidebar(disable = TRUE),
+    dashboardBody(
+        shinyDashboardThemes(
+            theme = "grey_light"
+        ),
         source("tabs/tab_main.R", 
-               local = TRUE, encoding = "utf-8")[1]
-    ),
-    
-    # Second Tab
-    tabPanel(
-        "Info",
-        fluid = TRUE,
-        icon = icon("info-circle"),
-        source("tabs/tab_info.R", 
                local = TRUE, encoding = "utf-8")[1]
     )
 )
@@ -60,7 +52,7 @@ ui <- navbarPage(
 # Define server logic required to draw a histogram
 server <- function(input, output, session) {
     
-    # General ----
+    # Original Coefficients Table ----
     
     # create data frame with example .csv file
     dat <- reactiveValues(df = example_data)
@@ -100,8 +92,7 @@ server <- function(input, output, session) {
         DT::datatable(df(), rownames = FALSE,
                       selection = "none",
                       editable = TRUE,
-                      options = list(dom = 't',
-                                     scrollY = "400px"))
+                      options = list(dom = 't'))
     })
     
     # edit cells of df
