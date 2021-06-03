@@ -69,7 +69,7 @@ server <- function(input, output, session) {
     # table containing original beta coefficients
     output$beta_table <- DT::renderDataTable({
         
-        DT::datatable(isolate(df()), rownames = FALSE,
+        DT::datatable(isolate(df()), rownames = TRUE,
                       selection = "none",
                       editable = TRUE,
                       options = list(dom = 'lt', 
@@ -81,7 +81,7 @@ server <- function(input, output, session) {
     proxy <- dataTableProxy("beta_table")
     
     observe({
-        proxy %>% replaceData(df(), rownames = FALSE)
+        proxy %>% replaceData(df(), rownames = TRUE)
     })
     
     # edit cells of df
@@ -90,7 +90,7 @@ server <- function(input, output, session) {
         info <- input$beta_table_cell_edit
         str(info)
         row   <- info$row
-        col   <- info$col + 1L
+        col   <- info$col
         value <- info$value %>% as.numeric()
         
         dat$df[row, col] <- value

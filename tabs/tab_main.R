@@ -54,16 +54,7 @@ fluidPage(
                              label = "Upload CSV file"),
                 
                 # Horizontal line ----
-                tags$hr(),
-                
-                # Input: Select number of rows to display ----
-                h4("Data Frame Settings"),
-                radioButtons("disp", "Display",
-                             choices = c(Head = "head",
-                                         All = "all"),
-                             selected = "all"),
-                
-                checkboxInput("rownames", "Show Row Names", FALSE)
+                tags$hr()
             )
         ),
         box(
