@@ -38,7 +38,13 @@ example_data <-
 ui <- dashboardPage(
     dashboardHeader(title = "Gini Anker",
                     titleWidth = 350),
-    dashboardSidebar(disable = TRUE),
+    dashboardSidebar(
+        # Remove the sidebar toggle element
+        tags$script(JS("document.getElementsByClassName('sidebar-toggle')[0].
+                       style.visibility = 'hidden';")),
+        width = 350,
+        collapsed = TRUE,
+        minified = FALSE),
     dashboardBody(
         shinyDashboardThemes(
             theme = "grey_light"
@@ -92,7 +98,7 @@ server <- function(input, output, session) {
         DT::datatable(df(), rownames = FALSE,
                       selection = "none",
                       editable = TRUE,
-                      options = list(dom = 't'))
+                      options = list(dom = 't', scrollX = TRUE))
     })
     
     # edit cells of df
@@ -146,7 +152,7 @@ server <- function(input, output, session) {
     # tables showing output of all_methods_maxima() function
     output$all <- DT::renderDataTable({
         DT::datatable(gini_all(), rownames = FALSE, selection = "single",
-                      options = list(dom = 't'))
+                      options = list(dom = 't', scrollX = TRUE))
     })
     
     output$reference <- DT::renderDataTable({
@@ -155,7 +161,7 @@ server <- function(input, output, session) {
                                    beta3 = df()[, 3])$Reference
         temp$Gini_Sum <- round(temp$Gini_Sum, digits = 2)
         DT::datatable(temp, rownames = FALSE, selection = "none",
-                      options = list(dom = 't'))
+                      options = list(dom = 't', scrollX = TRUE))
     })
     
     output$sequential <- DT::renderDataTable({
@@ -164,7 +170,7 @@ server <- function(input, output, session) {
                                    beta3 = df()[, 3])$Sequential
         temp$Gini_Sum <- round(temp$Gini_Sum, digits = 2)
         DT::datatable(temp, rownames = FALSE, selection = "none",
-                      options = list(dom = 't'))
+                      options = list(dom = 't', scrollX = TRUE))
     })
 
 }

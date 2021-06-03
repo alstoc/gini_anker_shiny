@@ -70,6 +70,7 @@ fluidPage(
     # Output: Data tables showing output of all_methods_maxima() ----
     fluidRow(
         box(width = 4,
+            status = "danger",
             title = "All",
             helpText("Update the diagram by clicking on a row."),
             DT::dataTableOutput("all")),
