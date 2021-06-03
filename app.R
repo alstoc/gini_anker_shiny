@@ -66,6 +66,30 @@ server <- function(input, output, session) {
     # create reactive set
     df <- reactive({dat$df})
     
+    # table containing original beta coefficients
+    output$beta_table <- DT::renderDataTable({
+        
+        DT::datatable(df(), rownames = FALSE,
+                      selection = "none",
+                      editable = TRUE,
+                      options = list(dom = 'plt', 
+                                     scrollX = TRUE,
+                                     pageLength = 25,
+                                     lengthMenu = c(10, 25, 50)))
+    })
+    
+    # edit cells of df
+    observeEvent(input$beta_table_cell_edit, {
+        
+        info <- input$beta_table_cell_edit
+        str(info)
+        row   <- info$row
+        col   <- info$col + 1L
+        value <- info$value %>% as.numeric()
+        
+        isolate(dat$df[row, col] <- value)
+    })
+    
     # create data frame from uploaded .csv file
     observeEvent(input$upload_button, {
         # when reading semicolon separated files,
@@ -92,30 +116,18 @@ server <- function(input, output, session) {
         )
     })
     
-    # table containing original beta coefficients
-    output$beta_table <- DT::renderDataTable({
-        
-        DT::datatable(df(), rownames = FALSE,
-                      selection = "none",
-                      editable = TRUE,
-                      options = list(dom = 't', scrollX = TRUE))
+    # add row
+    observeEvent(input$add_row, {
+        tmp <- data.frame(0, 0, 0)
+        colnames(tmp) <- colnames(dat$df)
+        dat$df <- rbind(dat$df,
+                        tmp)
     })
     
-    # edit cells of df
-    observeEvent(input$beta_table_cell_edit, {
-
-        info <- input$beta_table_cell_edit
-        str(info)
-        row   <- info$row
-        col   <- info$col + 1L
-        value <- info$value %>% as.numeric()
-        
-        isolate(dat$df[row, col] <- value)
-        
-        #editData(df, input$beta_table_cell_edit, rownames = FALSE)
+    # remove row
+    observeEvent(input$remove_row, {
+        dat$df <- dat$df[-nrow(dat$df), ]
     })
-    
-    observe(str(input$beta_table_cell_edit))
     
     # gini_all with selecatble rows ----
     
@@ -152,7 +164,10 @@ server <- function(input, output, session) {
     # tables showing output of all_methods_maxima() function
     output$all <- DT::renderDataTable({
         DT::datatable(gini_all(), rownames = FALSE, selection = "single",
-                      options = list(dom = 't', scrollX = TRUE))
+                      options = list(dom = 'plt', 
+                                     scrollX = TRUE,
+                                     pageLength = 25,
+                                     lengthMenu = c(10, 25, 50)))
     })
     
     output$reference <- DT::renderDataTable({
@@ -161,7 +176,10 @@ server <- function(input, output, session) {
                                    beta3 = df()[, 3])$Reference
         temp$Gini_Sum <- round(temp$Gini_Sum, digits = 2)
         DT::datatable(temp, rownames = FALSE, selection = "none",
-                      options = list(dom = 't', scrollX = TRUE))
+                      options = list(dom = 'plt', 
+                                     scrollX = TRUE,
+                                     pageLength = 25,
+                                     lengthMenu = c(10, 25, 50)))
     })
     
     output$sequential <- DT::renderDataTable({
@@ -170,7 +188,10 @@ server <- function(input, output, session) {
                                    beta3 = df()[, 3])$Sequential
         temp$Gini_Sum <- round(temp$Gini_Sum, digits = 2)
         DT::datatable(temp, rownames = FALSE, selection = "none",
-                      options = list(dom = 't', scrollX = TRUE))
+                      options = list(dom = 'plt', 
+                                     scrollX = TRUE,
+                                     pageLength = 25,
+                                     lengthMenu = c(10, 25, 50)))
     })
 
 }

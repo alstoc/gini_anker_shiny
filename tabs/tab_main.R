@@ -8,6 +8,12 @@ fluidPage(
             helpText("Double-click on cells to edit. Press Enter to confirm change."),
             DT::dataTableOutput("beta_table"),
             
+            # box dropdown ----
+            dropdownMenu = boxDropdown(
+                boxDropdownItem("Add row", id = "add_row", icon = icon("plus")),
+                boxDropdownItem("Remove row", id = "remove_row", icon = icon("minus")),
+            ),
+            
             # box sidebar ----
             sidebar = boxSidebar(
                 id = "beta_sidebar",
