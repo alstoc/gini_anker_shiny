@@ -93,7 +93,7 @@ server <- function(input, output, session) {
         col   <- info$col + 1L
         value <- info$value %>% as.numeric()
         
-        isolate(dat$df[row, col] <- value)
+        dat$df[row, col] <- value
     })
     
     # create data frame from uploaded .csv file
@@ -173,7 +173,8 @@ server <- function(input, output, session) {
                       options = list(dom = 'lt', 
                                      scrollX = TRUE,
                                      pageLength = 25,
-                                     lengthMenu = c(25, 50, 100)))
+                                     lengthMenu = c(25, 50, 100),
+                                     order = list(4, "desc")))
     })
     
     output$reference <- DT::renderDataTable({
@@ -185,7 +186,8 @@ server <- function(input, output, session) {
                       options = list(dom = 'lt', 
                                      scrollX = TRUE,
                                      pageLength = 25,
-                                     lengthMenu = c(25, 50, 100)))
+                                     lengthMenu = c(25, 50, 100),
+                                     order = list(5, "desc")))
     })
     
     output$sequential <- DT::renderDataTable({
@@ -195,12 +197,12 @@ server <- function(input, output, session) {
         temp$Gini_Sum <- round(temp$Gini_Sum, digits = 2)
         DT::datatable(temp, 
                       rownames = FALSE, 
-                      selection = list(mode = "none",
-                                       selected = 1),
+                      selection = list(mode = "none"),
                       options = list(dom = 'lt', 
                                      scrollX = TRUE,
                                      pageLength = 25,
-                                     lengthMenu = c(25, 50, 100)))
+                                     lengthMenu = c(25, 50, 100),
+                                     order = list(6, "desc")))
     })
 
 }
