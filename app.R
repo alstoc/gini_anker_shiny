@@ -64,24 +64,28 @@ server <- function(input, output, session) {
     dat <- reactiveValues(df = example_data)
     
     # create reactive set
-    df <- reactive({dat$df})
+    df <- reactive({
+        dat$df %>% 
+            mutate(Item = 1:nrow(dat$df)) %>% 
+            select(Item, everything())
+    })
     
     # table containing original beta coefficients
     output$beta_table <- DT::renderDataTable({
-        
-        DT::datatable(isolate(df()), rownames = TRUE,
+        print(df())
+        DT::datatable(isolate(df()), rownames = FALSE,
                       selection = "none",
                       editable = TRUE,
-                      options = list(dom = 'lt', 
+                      options = list(dom = 't', 
                                      scrollX = TRUE,
-                                     pageLength = 25,
-                                     lengthMenu = c(25, 50, 100)))
+                                     pageLength = 100,
+                                     ordering = FALSE))
     })
     
     proxy <- dataTableProxy("beta_table")
     
     observe({
-        proxy %>% replaceData(df(), rownames = TRUE)
+        proxy %>% replaceData(df(), rownames = FALSE)
     })
     
     # edit cells of df
@@ -145,9 +149,10 @@ server <- function(input, output, session) {
     
     # create reactive data frame with all methods maxima
     gini_all <- reactive({
-        temp <- all_methods_maxima(beta1 = df()[, 1],
-                                   beta2 = df()[, 2],
-                                   beta3 = df()[, 3])$All
+        temp <- all_methods_maxima(beta1 = df()[, 2],
+                                   beta2 = df()[, 3],
+                                   beta3 = df()[, 4])$All %>% 
+            arrange(desc(Gini_Sum))
         temp$Gini_Sum <- round(temp$Gini_Sum, digits = 2)
         return(temp %>% as.data.frame())
     })
@@ -157,9 +162,9 @@ server <- function(input, output, session) {
     # plot of the beta coefficients
     output$gini_plot <- renderPlot({
         if (is.null(selected_row())) {
-            ggplot_betas(df(), shifts = c(0, 0, 0))
+            ggplot_betas(df()[, -1], shifts = c(0, 0, 0))
         } else {
-            ggplot_betas(df(), 
+            ggplot_betas(df()[, -1], 
                          shifts = gini_all() %>% 
                              slice(selected_row()) %>% 
                              select(starts_with("c")))
@@ -170,39 +175,41 @@ server <- function(input, output, session) {
     # tables showing output of all_methods_maxima() function
     output$all <- DT::renderDataTable({
         DT::datatable(gini_all(), rownames = FALSE, selection = "single",
-                      options = list(dom = 'lt', 
+                      options = list(dom = 't', 
                                      scrollX = TRUE,
-                                     pageLength = 25,
-                                     lengthMenu = c(25, 50, 100),
-                                     order = list(4, "desc")))
+                                     pageLength = 1000,
+                                     order = list(4, "desc"),
+                                     ordering = FALSE))
     })
     
     output$reference <- DT::renderDataTable({
-        temp <- all_methods_maxima(beta1 = df()[, 1],
-                                   beta2 = df()[, 2],
-                                   beta3 = df()[, 3])$Reference
+        temp <- all_methods_maxima(beta1 = df()[, 2],
+                                   beta2 = df()[, 3],
+                                   beta3 = df()[, 4])$Reference %>% 
+            arrange(desc(Gini_Sum))
         temp$Gini_Sum <- round(temp$Gini_Sum, digits = 2)
         DT::datatable(temp, rownames = FALSE, selection = "none",
-                      options = list(dom = 'lt', 
+                      options = list(dom = 't', 
                                      scrollX = TRUE,
-                                     pageLength = 25,
-                                     lengthMenu = c(25, 50, 100),
-                                     order = list(5, "desc")))
+                                     pageLength = 100,
+                                     order = list(5, "desc"),
+                                     ordering = FALSE))
     })
     
     output$sequential <- DT::renderDataTable({
-        temp <- all_methods_maxima(beta1 = df()[, 1],
-                                   beta2 = df()[, 2],
-                                   beta3 = df()[, 3])$Sequential
+        temp <- all_methods_maxima(beta1 = df()[, 2],
+                                   beta2 = df()[, 3],
+                                   beta3 = df()[, 4])$Sequential %>% 
+            arrange(desc(Gini_Sum))
         temp$Gini_Sum <- round(temp$Gini_Sum, digits = 2)
         DT::datatable(temp, 
                       rownames = FALSE, 
                       selection = list(mode = "none"),
-                      options = list(dom = 'lt', 
+                      options = list(dom = 't', 
                                      scrollX = TRUE,
-                                     pageLength = 25,
-                                     lengthMenu = c(25, 50, 100),
-                                     order = list(6, "desc")))
+                                     pageLength = 100,
+                                     order = list(6, "desc"),
+                                     ordering = FALSE))
     })
 
 }
