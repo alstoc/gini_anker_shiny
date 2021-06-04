@@ -152,8 +152,9 @@ server <- function(input, output, session) {
         temp <- all_methods_maxima(beta1 = df()[, 2],
                                    beta2 = df()[, 3],
                                    beta3 = df()[, 4])$All %>% 
-            arrange(desc(Gini_Sum))
-        temp$Gini_Sum <- round(temp$Gini_Sum, digits = 2)
+            arrange(desc(Gini_Sum)) %>% 
+            rename("Gini Sum" = Gini_Sum)
+        temp$"Gini Sum" <- round(temp$"Gini Sum", digits = 2)
         return(temp %>% as.data.frame())
     })
     
@@ -186,8 +187,9 @@ server <- function(input, output, session) {
         temp <- all_methods_maxima(beta1 = df()[, 2],
                                    beta2 = df()[, 3],
                                    beta3 = df()[, 4])$Reference %>% 
-            arrange(desc(Gini_Sum))
-        temp$Gini_Sum <- round(temp$Gini_Sum, digits = 2)
+            arrange(desc(Gini_Sum)) %>% 
+            rename("Gini Sum" = Gini_Sum)
+        temp$"Gini Sum" <- round(temp$"Gini Sum", digits = 2)
         DT::datatable(temp, rownames = FALSE, selection = "none",
                       options = list(dom = 't', 
                                      scrollX = TRUE,
@@ -200,8 +202,9 @@ server <- function(input, output, session) {
         temp <- all_methods_maxima(beta1 = df()[, 2],
                                    beta2 = df()[, 3],
                                    beta3 = df()[, 4])$Sequential %>% 
-            arrange(desc(Gini_Sum))
-        temp$Gini_Sum <- round(temp$Gini_Sum, digits = 2)
+            arrange(desc(Gini_Sum)) %>% 
+            rename("Gini Sum" = Gini_Sum)
+        temp$"Gini Sum" <- round(temp$"Gini Sum", digits = 2)
         DT::datatable(temp, 
                       rownames = FALSE, 
                       selection = list(mode = "none"),

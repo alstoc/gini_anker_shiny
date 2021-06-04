@@ -109,7 +109,7 @@ ggplot_betas <- function(betas,
                               shape = variable,
                               linetype = variable)) +
     geom_line(size = 1.1) +
-    geom_point(size = 3) +
+    geom_point(size = 5) +
     labs(
       title = title,
       x = "Item",
@@ -124,6 +124,7 @@ ggplot_betas <- function(betas,
           axis.text = element_text(size = 14),
           legend.title = element_blank(),
           legend.text = element_text(size = 18),
+          legend.key.size = unit(1.33, "cm"),
           legend.position = "bottom")
   
   return(beta_graph)

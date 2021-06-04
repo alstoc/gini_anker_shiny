@@ -4,6 +4,8 @@ fluidPage(
     fluidRow(
         box(
             width = 3,
+            status = "primary",
+            solidHeader = TRUE,
             title = "True Item Parameters",
             helpText("Double-click on cells to edit. Press Enter to confirm change."),
             DT::dataTableOutput("beta_table"),
@@ -59,6 +61,8 @@ fluidPage(
         ),
         box(
             width = 9,
+            status = "danger",
+            solidHeader = TRUE,
             title = "Anchored Estimated Item Parameters", 
             plotOutput("gini_plot")
         )
@@ -68,14 +72,19 @@ fluidPage(
     fluidRow(
         box(width = 4,
             status = "danger",
+            solidHeader = TRUE,
             title = "All Possible Maxima",
             helpText("Update the diagram by clicking on a row."),
             DT::dataTableOutput("all")),
         box(width = 4,
+            status = "info",
+            solidHeader = TRUE,
             title = "Maxima Identified by Reference Group Method",
             br(),
             DT::dataTableOutput("reference")),
         box(width = 4,
+            status = "info",
+            solidHeader = TRUE,
             title = "Maxima Identified by Sequential Method",
             br(),
             DT::dataTableOutput("sequential"))
