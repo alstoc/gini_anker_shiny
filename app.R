@@ -33,7 +33,6 @@ example_data <-
              check.names = FALSE) %>% 
     .[, -1]
 
-
 # Define UI for application ----
 ui <- dashboardPage(
     dashboardHeader(title = "Gini Anker",
@@ -72,7 +71,7 @@ server <- function(input, output, session) {
     
     # table containing original beta coefficients
     output$beta_table <- DT::renderDataTable({
-        print(df())
+        #print(df())
         DT::datatable(isolate(df()), rownames = FALSE,
                       selection = "none",
                       editable = TRUE,
@@ -92,7 +91,7 @@ server <- function(input, output, session) {
     observeEvent(input$beta_table_cell_edit, {
         
         info <- input$beta_table_cell_edit
-        str(info)
+        #str(info)
         row   <- info$row
         col   <- info$col
         value <- info$value %>% as.numeric()
@@ -205,9 +204,7 @@ server <- function(input, output, session) {
             arrange(desc(Gini_Sum)) %>% 
             rename("Gini Sum" = Gini_Sum)
         temp$"Gini Sum" <- round(temp$"Gini Sum", digits = 2)
-        DT::datatable(temp, 
-                      rownames = FALSE, 
-                      selection = list(mode = "none"),
+        DT::datatable(temp, rownames = FALSE, selection =  "none",
                       options = list(dom = 't', 
                                      scrollX = TRUE,
                                      pageLength = 100,
