@@ -5,9 +5,9 @@ account: alstoc
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 4148749
-bundleId: 4679036
+bundleId: 4736380
 url: https://alstoc.shinyapps.io/gini_anker_shiny/
-when: 1622838037.75844
-lastSyncTime: 1622838037.75844
+when: 1624204669.52469
+lastSyncTime: 1624204669.52469
 asMultiple: FALSE
 asStatic: FALSE

@@ -220,7 +220,9 @@ server <- function(input, output, session) {
     
     # tables showing output of all_methods_maxima() function
     output$all <- DT::renderDataTable({
-        temp <- gini_all()$All %>% as.data.frame()
+        temp <- gini_all()$All %>% 
+            select(-same_reference, -same_sequential) %>% 
+            as.data.frame()
         DT::datatable(temp, rownames = FALSE, selection = "single",
                       options = list(dom = 't', 
                                      scrollX = TRUE,
