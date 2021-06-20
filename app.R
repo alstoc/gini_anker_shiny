@@ -33,6 +33,32 @@ example_data <-
              check.names = FALSE) %>% 
     .[, -1]
 
+# Define comparison function
+compare <- function(main, comparison) {
+    rows <- list(NA)
+    df1 <- main %>% 
+        select(c1, c2, c3) %>% 
+        mutate(content = NA)
+    df2 <- comparison %>% 
+        select(c1, c2, c3) %>% 
+        mutate(content = NA)
+    
+    df1$content <- apply(df1[, 1:3], 1, paste0, sep = "", collapse = "")
+    df2$content <- apply(df2[, 1:3], 1, paste0, sep = "", collapse = "")
+    
+    for (i in 1:nrow(df1)) {
+        if (df2$content %in% df1$content[i] %>% any()) {
+            # store row numbers of rows with same values
+            same_rows <- df2$content %in% df1$content[i] %>% which()
+            rows[[i]] <- same_rows
+        } else {
+            rows[[i]] <- NA
+        }
+    }
+    print(rows)
+    return(rows)
+}
+
 # Define UI for application ----
 ui <- dashboardPage(
     dashboardHeader(title = "Gini Anker",
@@ -146,26 +172,46 @@ server <- function(input, output, session) {
         selected_row(input$all_rows_selected)
     }, ignoreNULL = FALSE)
     
-    # create reactive data frame with all methods maxima
+    # create reactive list with all_methods_maxima results
     gini_all <- reactive({
         temp <- all_methods_maxima(beta1 = df()[, 2],
                                    beta2 = df()[, 3],
-                                   beta3 = df()[, 4])$All %>% 
+                                   beta3 = df()[, 4])
+        temp$All <- temp$All %>%
+            as.data.frame() %>% 
             arrange(desc(Gini_Sum)) %>% 
             rename("Gini Sum" = Gini_Sum)
-        temp$"Gini Sum" <- round(temp$"Gini Sum", digits = 2)
-        return(temp %>% as.data.frame())
+        temp$All$"Gini Sum" <- round(temp$All$"Gini Sum", digits = 2)
+        
+        temp$Reference <- temp$Reference %>% 
+            as.data.frame() %>% 
+            arrange(desc(Gini_Sum)) %>% 
+            rename("Gini Sum" = Gini_Sum)
+        temp$Reference$"Gini Sum" <- round(temp$Reference$"Gini Sum", digits = 2)
+        
+        temp$Sequential <- temp$Sequential %>% 
+            as.data.frame() %>% 
+            arrange(desc(Gini_Sum)) %>% 
+            rename("Gini Sum" = Gini_Sum)
+        temp$Sequential$"Gini Sum" <- round(temp$Sequential$"Gini Sum", digits = 2)
+        
+        temp$All <- temp$All %>%
+            mutate(same_reference = compare(temp$All, temp$Reference),
+                   same_sequential = compare(temp$All, temp$Sequential))
+        
+        return(temp)
     })
     
     # Gini Output ----
     
     # plot of the beta coefficients
     output$gini_plot <- renderPlot({
+        temp <- gini_all()$All %>% as.data.frame()
         if (is.null(selected_row())) {
             ggplot_betas(df()[, -1], shifts = c(0, 0, 0))
         } else {
             ggplot_betas(df()[, -1], 
-                         shifts = gini_all() %>% 
+                         shifts = temp %>% 
                              slice(selected_row()) %>% 
                              select(starts_with("c")))
         }
@@ -174,7 +220,8 @@ server <- function(input, output, session) {
     
     # tables showing output of all_methods_maxima() function
     output$all <- DT::renderDataTable({
-        DT::datatable(gini_all(), rownames = FALSE, selection = "single",
+        temp <- gini_all()$All %>% as.data.frame()
+        DT::datatable(temp, rownames = FALSE, selection = "single",
                       options = list(dom = 't', 
                                      scrollX = TRUE,
                                      pageLength = 1000,
@@ -183,28 +230,32 @@ server <- function(input, output, session) {
     })
     
     output$reference <- DT::renderDataTable({
-        temp <- all_methods_maxima(beta1 = df()[, 2],
-                                   beta2 = df()[, 3],
-                                   beta3 = df()[, 4])$Reference %>% 
-            arrange(desc(Gini_Sum)) %>% 
-            rename("Gini Sum" = Gini_Sum)
-        temp$"Gini Sum" <- round(temp$"Gini Sum", digits = 2)
-        DT::datatable(temp, rownames = FALSE, selection = "none",
+        temp <- gini_all()$Reference %>% as.data.frame()
+        if (is.null(selected_row())) {
+            highlight <- NA
+        } else {
+            highlight <- gini_all()$All$same_reference[[selected_row()]]
+        }
+        DT::datatable(temp, rownames = FALSE, 
+                      selection = list(mode = "multiple",
+                                       selected = highlight),
                       options = list(dom = 't', 
                                      scrollX = TRUE,
                                      pageLength = 100,
                                      order = list(5, "desc"),
-                                     ordering = FALSE))
+                                     ordering = FALSE)) 
     })
     
     output$sequential <- DT::renderDataTable({
-        temp <- all_methods_maxima(beta1 = df()[, 2],
-                                   beta2 = df()[, 3],
-                                   beta3 = df()[, 4])$Sequential %>% 
-            arrange(desc(Gini_Sum)) %>% 
-            rename("Gini Sum" = Gini_Sum)
-        temp$"Gini Sum" <- round(temp$"Gini Sum", digits = 2)
-        DT::datatable(temp, rownames = FALSE, selection =  "none",
+        temp <- gini_all()$Sequential %>% as.data.frame()
+        if (is.null(selected_row())) {
+            highlight <- NA
+        } else {
+            highlight <- gini_all()$All$same_sequential[[selected_row()]]
+        }
+        DT::datatable(temp, rownames = FALSE, 
+                      selection = list(mode = "multiple",
+                                       selected = highlight),
                       options = list(dom = 't', 
                                      scrollX = TRUE,
                                      pageLength = 100,
